@@ -4,4 +4,6 @@ import gradio as st
 
 def foo(text):
     ret = check_sensitive_content(text)
-    return st.Textbox(value=ret, interactive=False)
+    ret_ = "Có" if ret.startswith("Có") else "Không"
+    ret_ += f'\n{ret}'
+    return st.Textbox(value=ret_, interactive=False)
