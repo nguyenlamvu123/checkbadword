@@ -3,3 +3,4 @@ openai
 jupyter
 openpyxl
 gradio
+django 
