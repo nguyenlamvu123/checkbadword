@@ -47,7 +47,7 @@ def check_sensitive_content(text):
     result = response.choices[0].message.content.strip()
     return result
 
-
+curentpath = os.getcwd()
 apikey:str = readfile('apikey.txt', '_r')
 client = OpenAI(
     # This is the default and can be omitted
