@@ -55,15 +55,8 @@ def chat_with_sensitive_check(prompt, sensitive_words):
 
     if detected_words:
         print(f"Từ nhạy cảm phát hiện: {', '.join(detected_words)}")
-        return "Không thể gửi tin nhắn này do chứa từ nhạy cảm."
-
-    # Nếu không có từ nhạy cảm, gọi API
-    response = ChatCompletion.create(
-        model="gpt-4",
-        messages=[{"role": "user", "content": prompt}]
-    )
-
-    return response.choices[0].message['content']
+        return True
+    return False
 
 
 # Hàm kiểm tra từ nhạy cảm thông qua ChatGPT API
