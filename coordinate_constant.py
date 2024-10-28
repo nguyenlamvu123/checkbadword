@@ -1,5 +1,5 @@
-from openai import OpenAI
-import json, os
+from openai import OpenAI, ChatCompletion
+import json, os, re
 
 
 def readfile(file="uid.txt", mod="r", cont=None, jso: bool = False):
@@ -23,6 +23,47 @@ def readfile(file="uid.txt", mod="r", cont=None, jso: bool = False):
                 fil_e.write(cont)
             else:
                 json.dump(cont, fil_e, indent=2, ensure_ascii=False)
+
+
+# Đọc file JSON chứa từ nhạy cảm
+def load_sensitive_words(file_path='sensitive_words.json'):
+    data: dict = readfile(file=file_path, mod="_r", jso=True)
+    return data["sensitive_words"]
+
+
+# Hàm kiểm tra từ nhạy cảm
+def detect_sensitive_words(text, sensitive_words):
+    detected_words = []
+    for word_data in sensitive_words:
+        word = word_data["word"]
+        variants = word_data["variants"]
+
+        # Tạo regex để kiểm tra từ và các biến thể của nó
+        pattern = re.compile(r'\b(' + '|'.join([re.escape(v) for v in [word] + variants]) + r')\b', re.IGNORECASE)
+
+        # Kiểm tra sự xuất hiện trong văn bản
+        if pattern.search(text):
+            detected_words.append(word)
+
+    return detected_words
+
+
+# Ví dụ sử dụng API ChatGPT 4.0
+def chat_with_sensitive_check(prompt, sensitive_words):
+    # Kiểm tra từ nhạy cảm
+    detected_words = detect_sensitive_words(prompt, sensitive_words)
+
+    if detected_words:
+        print(f"Từ nhạy cảm phát hiện: {', '.join(detected_words)}")
+        return "Không thể gửi tin nhắn này do chứa từ nhạy cảm."
+
+    # Nếu không có từ nhạy cảm, gọi API
+    response = ChatCompletion.create(
+        model="gpt-4",
+        messages=[{"role": "user", "content": prompt}]
+    )
+
+    return response.choices[0].message['content']
 
 
 # Hàm kiểm tra từ nhạy cảm thông qua ChatGPT API
@@ -53,3 +94,13 @@ client = OpenAI(
     # This is the default and can be omitted
     api_key=apikey,
 )
+# Đọc từ nhạy cảm từ file JSON
+sensitive_words = load_sensitive_words()
+
+
+if __name__ == '__main__':
+    # Kiểm tra prompt ví dụ
+    prompt = "V.ú đẹp quá phải không?"
+
+    result = chat_with_sensitive_check(prompt, sensitive_words)
+    print(result)
