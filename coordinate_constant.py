@@ -26,8 +26,8 @@ def readfile(file="uid.txt", mod="r", cont=None, jso: bool = False):
 
 
 # Đọc file JSON chứa từ nhạy cảm
-def load_sensitive_words(file_path='sensitive_words.json'):
-    data: dict = readfile(file=file_path, mod="_r", jso=True)
+def load_sensitive_words() -> list:
+    data: dict = readfile(file=swjson, mod="_r", jso=True)
     return data["sensitive_words"]
 
 
@@ -49,7 +49,9 @@ def detect_sensitive_words(text, sensitive_words):
 
 
 # Ví dụ sử dụng API ChatGPT 4.0
-def chat_with_sensitive_check(prompt, sensitive_words):
+def chat_with_sensitive_check(prompt):
+    # Đọc từ nhạy cảm từ file JSON
+    sensitive_words: list = load_sensitive_words()
     # Kiểm tra từ nhạy cảm
     detected_words = detect_sensitive_words(prompt, sensitive_words)
 
@@ -87,13 +89,12 @@ client = OpenAI(
     # This is the default and can be omitted
     api_key=apikey,
 )
-# Đọc từ nhạy cảm từ file JSON
-sensitive_words = load_sensitive_words()
+swjson = 'sensitive_words.json'
 
 
 if __name__ == '__main__':
     # Kiểm tra prompt ví dụ
     prompt = "V.ú đẹp quá phải không?"
 
-    result = chat_with_sensitive_check(prompt, sensitive_words)
+    result = chat_with_sensitive_check(prompt)
     print(result)
